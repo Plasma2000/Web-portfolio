@@ -123,7 +123,8 @@ def leaf_section(content, height=700, page=None):
 def home_section(page_ref=None):
     w = (page_ref.width or 800) if page_ref else 800
     mobile = w < 700
-    hero_h = 480 if mobile else 775
+    small  = w < 420
+    hero_h = 400 if small else (480 if mobile else 775)
     hero_img = ft.Image(src=HERO_B64, fit=ft.BoxFit.COVER, width=9999, height=hero_h)
     overlay = ft.Container(expand=True, bgcolor="#BB1a1008")
 
@@ -135,7 +136,7 @@ def home_section(page_ref=None):
     ]
     role_text = ft.Text(
         roles[0],
-        size=13,
+        size=11 if small else 13,
         color=CREAM,
         text_align=ft.TextAlign.CENTER,
         weight=ft.FontWeight.W_700,
@@ -170,7 +171,7 @@ def home_section(page_ref=None):
         [
             ft.Text(
                 "T E O P O L I N A",
-                size=48 if mobile else 100,
+                size=30 if small else (48 if mobile else 100),
                 color=WHITE,
                 weight=ft.FontWeight.W_900,
                 text_align=ft.TextAlign.CENTER,
@@ -178,7 +179,7 @@ def home_section(page_ref=None):
             ),
             ft.Text(
                 "N E G O N G A",
-                size=40 if mobile else 90,
+                size=26 if small else (40 if mobile else 90),
                 color=WHITE,
                 weight=ft.FontWeight.W_900,
                 text_align=ft.TextAlign.CENTER,
@@ -196,7 +197,7 @@ def home_section(page_ref=None):
                 weight=ft.FontWeight.W_400,
                 italic=True,
                 font_family="Georgia",
-                offset=ft.Offset(0, -2.3),
+                offset=ft.Offset(0, -0.8 if mobile else -2.3),
             ),
             ft.Container(height=20),
             ft.Column(
@@ -223,6 +224,7 @@ def home_section(page_ref=None):
                          expand=True, height=hero_h - 75),
         ]),
         height=hero_h,
+        clip_behavior=ft.ClipBehavior.HARD_EDGE,
     )
 
     def _cycle(page):
@@ -252,13 +254,13 @@ def about_section(page=None):
         content=ft.Image(src=ABOUT_B64, fit=ft.BoxFit.COVER),
         width=None if mobile else 420,
         height=220 if mobile else 800,
-        expand=mobile,
+        expand=False,
         clip_behavior=ft.ClipBehavior.HARD_EDGE,
     )
 
     heading = ft.Column(
         [
-            ft.Container(height=90),
+            ft.Container(height=30 if mobile else 90),
             ft.Text(
                 "Who I Am",
                 size=11, color=DARK, weight=ft.FontWeight.W_700,
@@ -267,7 +269,7 @@ def about_section(page=None):
             ft.Container(height=8),
             ft.Text(
                 "ABOUT ME",
-                size=52, color=GOLD, weight=ft.FontWeight.W_700,
+                size=34 if mobile else 52, color=GOLD, weight=ft.FontWeight.W_700,
                 font_family="Georgia", text_align=ft.TextAlign.CENTER,
             ),
             ft.Container(height=20),
@@ -335,10 +337,9 @@ def about_section(page=None):
         spacing=0,
     )
 
-    scrollable_text = ft.Column(
-        [paragraphs],
-        scroll=ft.ScrollMode.AUTO,
-        expand=True,
+    scrollable_text = (
+        paragraphs if mobile else
+        ft.Column([paragraphs], scroll=ft.ScrollMode.AUTO, expand=True)
     )
 
     # Animated skill bars
@@ -389,14 +390,14 @@ def about_section(page=None):
 
     bp = 20 if mobile else 48
     bio_container = ft.Container(
-        content=ft.Column([heading, scrollable_text, skills_widget], spacing=0, expand=True),
+        content=ft.Column([heading, scrollable_text, skills_widget], spacing=0, expand=not mobile),
         padding=ft.Padding(left=bp, right=bp, top=0, bottom=40),
-        expand=True,
+        expand=not mobile,
         bgcolor=CREAM,
     )
 
     if mobile:
-        layout = ft.Column([photo, bio_container], spacing=0, expand=True)
+        layout = ft.Column([photo, bio_container], spacing=0)
     else:
         layout = ft.Row([photo, bio_container],
                         alignment=ft.MainAxisAlignment.START,
@@ -407,7 +408,7 @@ def about_section(page=None):
         key="sec1",
         content=layout,
         height=None if mobile else 900,
-        clip_behavior=ft.ClipBehavior.HARD_EDGE,
+        clip_behavior=None if mobile else ft.ClipBehavior.HARD_EDGE,
         bgcolor=CREAM,
         image=ft.DecorationImage(src=LEAF_B64, fit=ft.BoxFit.COVER, opacity=0.18),
     )
@@ -1704,7 +1705,7 @@ def main(page: ft.Page):
         about_s = about_section(page=page)
         secs = [
             ft.Container(content=scrollable(home_s),  visible=(current_idx[0] == 0), expand=True),
-            ft.Container(content=about_s,              visible=(current_idx[0] == 1), expand=True),
+            ft.Container(content=scrollable(about_s),  visible=(current_idx[0] == 1), expand=True),
             ft.Container(content=scrollable(matlab_section(page=page)),                                          visible=(current_idx[0] == 2), expand=True),
             ft.Container(content=scrollable(mineshield_section(page=page)),                                      visible=(current_idx[0] == 3), expand=True),
             ft.Container(content=scrollable(timeline_section(page=page)),                                        visible=(current_idx[0] == 4), expand=True),
